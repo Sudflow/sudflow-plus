@@ -3,19 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sudflow Plus - Material 3 Logistics Platform</title>
+  <title>Sudflow Plus - Material 3 QR Logistics Platform</title>
 
   <!-- Google Material Symbols (Icons) & Roboto Font -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
 
-  <!-- Tailwind CSS CDN for Layout & Utility Grid -->
+  <!-- Tailwind CSS CDN for Layout Grid -->
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- Open-source client-side Computer Vision Scanner -->
+  <!-- Open-source Real-time Camera Vision QR & Barcode Scanner -->
   <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 
-  <!-- Google Material 3 Web Components (Import Map & ES Modules) -->
+  <!-- Google Material 3 Web Components -->
   <script type="importmap">
     {
       "imports": {
@@ -27,24 +27,14 @@
     import '@material/web/all.js';
   </script>
 
-  <!-- Material Design 3 Color Tokens & Styling -->
+  <!-- Material Design 3 Custom Color Palette -->
   <style>
     :root {
-      /* M3 Primary Dynamic Color Tokens */
       --md-sys-color-primary: #006399;
-      --md-sys-color-on-primary: #ffffff;
-      --md-sys-color-primary-container: #cce5ff;
-      --md-sys-color-on-primary-container: #001d32;
-      
       --md-sys-color-surface: #f8f9ff;
       --md-sys-color-surface-container: #ededf4;
       --md-sys-color-surface-container-high: #e2e2e9;
       --md-sys-color-on-surface: #191c20;
-      --md-sys-color-on-surface-variant: #41474d;
-      
-      --md-sys-color-tertiary: #6b5778;
-      --md-sys-color-tertiary-container: #f2daff;
-      
       font-family: 'Roboto', sans-serif;
     }
 
@@ -56,7 +46,12 @@
     .m3-card {
       background-color: var(--md-sys-color-surface-container);
       border-radius: 24px;
-      padding: 20px;
+      padding: 24px;
+      transition: all 0.2s ease-in-out;
+    }
+
+    .m3-card:hover {
+      background-color: var(--md-sys-color-surface-container-high);
     }
 
     .m3-card-high {
@@ -64,206 +59,316 @@
       border-radius: 16px;
       padding: 16px;
     }
-
-    .senior-text-large {
-      font-size: 1.25rem;
-      line-height: 1.75rem;
-    }
   </style>
 </head>
-<body class="min-h-screen flex flex-col font-sans">
+<body class="min-h-screen flex flex-col">
 
-  <!-- M3 Top App Bar -->
+  <!-- M3 Top Navigation Bar -->
   <header class="bg-[#ededf4] border-b border-slate-300 px-4 py-3 flex justify-between items-center sticky top-0 z-50">
-    <div class="flex items-center gap-3">
+    <div class="flex items-center gap-3 cursor-pointer" onclick="showLandingPage()">
       <span class="material-symbols-outlined text-[#006399] text-3xl">local_laundry_service</span>
       <div>
-        <h1 class="font-black text-xl text-[#191c20] tracking-tight">Sudflow <span class="text-[#006399]">+</span></h1>
-        <p class="text-xs text-slate-500 font-medium">Material 3 QR Logistics Engine</p>
+        <h1 class="font-black text-xl text-slate-900 tracking-tight">Sudflow <span class="text-[#006399]">+</span></h1>
+        <p class="text-xs text-slate-500 font-medium">Hyper-Scalable Logistics Engine</p>
       </div>
     </div>
     
     <div class="flex items-center gap-2">
-      <!-- Role Selector Dropdown -->
-      <select id="roleSelector" onchange="switchRole(this.value)" class="bg-white text-slate-800 text-xs sm:text-sm rounded-xl px-3 py-2 border border-slate-300 font-medium shadow-sm focus:outline-none">
-        <option value="senior">👵 Senior / Customer View</option>
-        <option value="driver">🚗 Courier / Driver View</option>
-        <option value="hub">🧺 Partner Laundromat View</option>
-      </select>
-      
-      <!-- Settings Icon Button -->
+      <span id="activeRoleBadge" class="text-xs font-bold bg-[#cce5ff] text-[#001d32] px-3 py-1.5 rounded-full hidden">
+        Role: Unassigned
+      </span>
       <md-icon-button onclick="toggleSettingsModal()">
         <span class="material-symbols-outlined">settings</span>
       </md-icon-button>
     </div>
   </header>
 
-  <!-- Main Container -->
+  <!-- Main Workspace -->
   <main class="flex-1 max-w-2xl w-full mx-auto p-4 flex flex-col gap-5">
 
     <!-- API Connection Notice -->
     <div id="apiNotice" class="hidden bg-amber-100 border border-amber-300 text-amber-900 px-4 py-3 rounded-2xl text-xs flex justify-between items-center">
       <span class="flex items-center gap-2">
         <span class="material-symbols-outlined text-amber-700">warning</span>
-        No Apps Script Web App URL set. Using demo data mode.
+        Demo mode: Configure Google Apps Script Web App URL in settings.
       </span>
       <md-text-button onclick="toggleSettingsModal()">Configure</md-text-button>
     </div>
 
-    <!-- M3 Computer Vision Scanner Container -->
-    <section class="m3-card shadow-sm space-y-3">
-      <div class="flex justify-between items-center">
-        <h2 class="text-sm font-bold uppercase tracking-wider text-slate-600 flex items-center gap-2">
-          <span class="material-symbols-outlined text-base">photo_camera</span> Computer Vision Scanner
-        </h2>
-        <span id="scannerStatus" class="text-xs bg-slate-200 text-slate-700 font-semibold px-3 py-1 rounded-full">Camera Idle</span>
+    <!-- PAGE 1: ROLE SELECTION / SIGN IN SCREEN -->
+    <section id="landingPage" class="space-y-6 py-2">
+      <div class="text-center space-y-2">
+        <h2 class="text-2xl font-black text-slate-900">Welcome to Sudflow</h2>
+        <p class="text-sm text-slate-600">Select your account role to enter the platform or register.</p>
       </div>
 
-      <!-- Live Video Viewport -->
-      <div class="relative bg-slate-900 rounded-2xl overflow-hidden min-h-[200px] flex flex-col items-center justify-center border-2 border-dashed border-slate-300" id="scannerContainer">
-        <div id="reader" class="w-full"></div>
-        <div id="scannerPlaceholder" class="p-6 text-center text-white">
-          <span class="material-symbols-outlined text-5xl mb-1 text-slate-300">qr_code_scanner</span>
-          <p class="text-sm font-medium">Scan physical bag QR code or barcode</p>
-          <p class="text-xs text-slate-400 mt-0.5">Automated lookup via Google Apps Script</p>
-          
-          <div class="mt-4">
-            <md-filled-button onclick="startCameraScanner()">
-              <span class="material-symbols-outlined slot="icon"">videocam</span>
-              Activate Camera
-            </md-filled-button>
+      <div class="grid grid-cols-1 gap-4">
+        <!-- Option 1: Customer / Senior Care -->
+        <div onclick="selectRole('senior')" class="m3-card cursor-pointer border border-slate-300 hover:border-[#006399] shadow-sm flex items-start gap-4">
+          <div class="bg-[#cce5ff] text-[#001d32] p-4 rounded-2xl flex items-center justify-center">
+            <span class="material-symbols-outlined text-4xl">elderly</span>
+          </div>
+          <div class="flex-1 space-y-1">
+            <div class="flex justify-between items-center">
+              <h3 class="font-bold text-lg text-slate-900">Customer / Senior Care</h3>
+              <span class="material-symbols-outlined text-slate-400">arrow_forward</span>
+            </div>
+            <p class="text-xs text-slate-600">For senior citizens and home care clients. Scan your physical bag QR code to order a flat $50 wash & fold pickup in 1 click.</p>
+          </div>
+        </div>
+
+        <!-- Option 2: Gig Courier Driver -->
+        <div onclick="selectRole('driver')" class="m3-card cursor-pointer border border-slate-300 hover:border-[#006399] shadow-sm flex items-start gap-4">
+          <div class="bg-emerald-100 text-emerald-900 p-4 rounded-2xl flex items-center justify-center">
+            <span class="material-symbols-outlined text-4xl">local_shipping</span>
+          </div>
+          <div class="flex-1 space-y-1">
+            <div class="flex justify-between items-center">
+              <h3 class="font-bold text-lg text-slate-900">Courier Driver</h3>
+              <span class="material-symbols-outlined text-slate-400">arrow_forward</span>
+            </div>
+            <p class="text-xs text-slate-600">For 1099 couriers. Scan bag pickup/drop-off barcodes, access senior door-step notes, and manage route dispatches.</p>
+          </div>
+        </div>
+
+        <!-- Option 3: Partner Laundromat -->
+        <div onclick="selectRole('hub')" class="m3-card cursor-pointer border border-slate-300 hover:border-[#006399] shadow-sm flex items-start gap-4">
+          <div class="bg-purple-100 text-purple-900 p-4 rounded-2xl flex items-center justify-center">
+            <span class="material-symbols-outlined text-4xl">storefront</span>
+          </div>
+          <div class="flex-1 space-y-1">
+            <div class="flex justify-between items-center">
+              <h3 class="font-bold text-lg text-slate-900">Partner Laundromat</h3>
+              <span class="material-symbols-outlined text-slate-400">arrow_forward</span>
+            </div>
+            <p class="text-xs text-slate-600">For commercial laundromat facilities. Accept batch orders off-peak, verify scale weight overages (>40 lbs), and view wash instructions.</p>
           </div>
         </div>
       </div>
-
-      <!-- Manual Bag ID Simulation Input -->
-      <div class="flex items-center gap-2 pt-1">
-        <div class="flex-1">
-          <md-outlined-text-field id="manualBagInput" label="Simulate Bag Code" value="SUD-00101" class="w-full"></md-outlined-text-field>
-        </div>
-        <md-filled-tonal-button onclick="handleCodeScanned(document.getElementById('manualBagInput').value)">
-          Scan
-        </md-filled-tonal-button>
-      </div>
     </section>
 
-    <!-- ROLE 1: SENIOR CITIZEN / CUSTOMER VIEW -->
-    <section id="seniorView" class="m3-card shadow-sm space-y-4">
-      <div class="border-b border-slate-300 pb-3 flex justify-between items-center">
+    <!-- PAGE 2A: DRIVER REGISTRATION FORM -->
+    <section id="driverRegisterPage" class="hidden m3-card shadow-sm space-y-4">
+      <div class="flex items-center gap-2 border-b border-slate-300 pb-3">
+        <md-icon-button onclick="showLandingPage()">
+          <span class="material-symbols-outlined">arrow_back</span>
+        </md-icon-button>
         <div>
-          <h2 class="text-xl font-bold text-slate-900">Senior Home Service</h2>
-          <p class="text-xs text-slate-500">Flat $50 Laundry Care Bag</p>
-        </div>
-        <span class="bg-[#cce5ff] text-[#001d32] text-xs font-black px-3 py-1.5 rounded-full">$50 Flat Rate</span>
-      </div>
-
-      <div class="m3-card-high space-y-3">
-        <p class="text-xs text-slate-500 font-bold uppercase tracking-wider">Active Bag Linked</p>
-        <p id="seniorBagCode" class="text-3xl font-black text-[#006399] font-mono">SUD-00101</p>
-        
-        <div id="seniorUserInfo" class="pt-2 border-t border-slate-300 text-sm space-y-1">
-          <p id="seniorName" class="font-bold text-slate-900 senior-text-large">Eleanor Vance</p>
-          <p id="seniorAddress" class="text-xs text-slate-600">742 Evergreen Terr, Apt 3B • Oakridge Senior Living</p>
-          <p id="seniorPrefs" class="text-xs font-semibold text-purple-800 pt-1">✨ Prefs: Hypoallergenic Detergent, Low Heat</p>
+          <h2 class="text-lg font-bold text-slate-900">Courier Driver Onboarding</h2>
+          <p class="text-xs text-slate-500">Links directly to the DRIVERS database tab</p>
         </div>
       </div>
 
-      <div class="pt-2">
-        <md-filled-button onclick="requestPickup()" class="w-full h-16 text-lg">
-          <span class="material-symbols-outlined" slot="icon">local_shipping</span>
-          Request $50 Bag Pickup Now
-        </md-filled-button>
-      </div>
+      <form id="driverForm" onsubmit="submitDriverRegistration(event)" class="space-y-3">
+        <md-outlined-text-field id="drvName" label="Full Name" required class="w-full"></md-outlined-text-field>
+        <md-outlined-text-field id="drvEmail" label="Email Address" type="email" required class="w-full"></md-outlined-text-field>
+        <md-outlined-text-field id="drvPhone" label="Phone Number" type="tel" required class="w-full"></md-outlined-text-field>
+        <md-outlined-text-field id="drvVehicle" label="Vehicle Make / Model / License Plate" required class="w-full"></md-outlined-text-field>
+
+        <div class="pt-2">
+          <md-filled-button type="submit" class="w-full">
+            <span class="material-symbols-outlined" slot="icon">how_to_reg</span>
+            Complete Driver Registration
+          </md-filled-button>
+        </div>
+      </form>
     </section>
 
-    <!-- ROLE 2: COURIER / DRIVER VIEW -->
-    <section id="driverView" class="hidden m3-card shadow-sm space-y-4">
-      <div class="border-b border-slate-300 pb-3">
-        <h2 class="text-lg font-bold text-slate-900">Driver Route Dispatch</h2>
-        <p class="text-xs text-slate-500">Scan bag on pickup or door drop-off</p>
+    <!-- PAGE 2B: LAUNDROMAT REGISTRATION FORM -->
+    <section id="hubRegisterPage" class="hidden m3-card shadow-sm space-y-4">
+      <div class="flex items-center gap-2 border-b border-slate-300 pb-3">
+        <md-icon-button onclick="showLandingPage()">
+          <span class="material-symbols-outlined">arrow_back</span>
+        </md-icon-button>
+        <div>
+          <h2 class="text-lg font-bold text-slate-900">Laundromat Facility Onboarding</h2>
+          <p class="text-xs text-slate-500">Links directly to the LAUNDROMATS database tab</p>
+        </div>
       </div>
 
-      <div class="m3-card-high space-y-3">
-        <div class="flex justify-between items-start">
-          <div>
-            <p class="text-xs text-slate-500 font-bold uppercase">Scanned Pickup Tag</p>
-            <p id="driverBagCode" class="text-2xl font-bold text-[#006399] font-mono">---</p>
-          </div>
-          <span id="driverBagStatus" class="bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded-full font-bold">Awaiting Scan</span>
-        </div>
+      <form id="hubForm" onsubmit="submitHubRegistration(event)" class="space-y-3">
+        <md-outlined-text-field id="hubFacility" label="Facility / Business Name" required class="w-full"></md-outlined-text-field>
+        <md-outlined-text-field id="hubContact" label="Contact Person Name" required class="w-full"></md-outlined-text-field>
+        <md-outlined-text-field id="hubEmail" label="Business Email" type="email" required class="w-full"></md-outlined-text-field>
+        <md-outlined-text-field id="hubPhone" label="Business Phone" type="tel" required class="w-full"></md-outlined-text-field>
+        <md-outlined-text-field id="hubAddress" label="Facility Address" required class="w-full"></md-outlined-text-field>
+        <md-outlined-text-field id="hubCapacity" label="Daily Machine Capacity (lbs/day)" type="number" value="500" required class="w-full"></md-outlined-text-field>
 
-        <div class="bg-white p-3.5 rounded-xl border border-slate-200 text-xs space-y-1">
-          <p class="font-bold text-slate-800">Senior Address & Access Notes:</p>
-          <p id="driverAddressText" class="text-slate-600">Scan a bag code to load route instructions...</p>
-        </div>
-
-        <div class="grid grid-cols-2 gap-2 pt-2">
-          <md-filled-button onclick="updateBagStatus('IN_TRANSIT')">
-            Mark Picked Up
+        <div class="pt-2">
+          <md-filled-button type="submit" class="w-full">
+            <span class="material-symbols-outlined" slot="icon">store</span>
+            Register Laundromat Partner
           </md-filled-button>
-          <md-filled-tonal-button onclick="updateBagStatus('DELIVERED')">
-            Mark Delivered
+        </div>
+      </form>
+    </section>
+
+    <!-- PAGE 3: OPERATIONAL WORKSPACE (Active camera scanner + Role Views) -->
+    <div id="workspacePage" class="hidden space-y-5">
+      
+      <!-- Top Action Toolbar -->
+      <div class="flex justify-between items-center">
+        <md-outlined-button onclick="showLandingPage()">
+          <span class="material-symbols-outlined" slot="icon">arrow_back</span> Change Role
+        </md-outlined-button>
+        <span id="activeUserGreeting" class="text-xs font-bold text-slate-700"></span>
+      </div>
+
+      <!-- Real Camera Scanner Component -->
+      <section class="m3-card shadow-sm space-y-3">
+        <div class="flex justify-between items-center">
+          <h2 class="text-sm font-bold uppercase tracking-wider text-slate-600 flex items-center gap-2">
+            <span class="material-symbols-outlined text-base">photo_camera</span> Live Camera Scanner
+          </h2>
+          <span id="scannerStatus" class="text-xs bg-slate-200 text-slate-700 font-semibold px-3 py-1 rounded-full">Camera Idle</span>
+        </div>
+
+        <!-- Camera Stream Viewport -->
+        <div class="relative bg-slate-900 rounded-2xl overflow-hidden min-h-[200px] flex flex-col items-center justify-center border-2 border-dashed border-slate-300" id="scannerContainer">
+          <div id="reader" class="w-full"></div>
+          <div id="scannerPlaceholder" class="p-6 text-center text-white">
+            <span class="material-symbols-outlined text-5xl mb-1 text-slate-300">qr_code_scanner</span>
+            <p class="text-sm font-medium">Scan physical bag QR code or barcode</p>
+            <p class="text-xs text-slate-400 mt-0.5">Scans using your phone / desktop browser camera</p>
+            
+            <div class="mt-4">
+              <md-filled-button onclick="startCameraScanner()">
+                <span class="material-symbols-outlined" slot="icon">videocam</span>
+                Start Live Camera Feed
+              </md-filled-button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Manual Lookup fallback -->
+        <div class="flex items-center gap-2 pt-1">
+          <div class="flex-1">
+            <md-outlined-text-field id="manualBagInput" label="Or Enter Bag Code" value="SUD-00101" class="w-full"></md-outlined-text-field>
+          </div>
+          <md-filled-tonal-button onclick="handleCodeScanned(document.getElementById('manualBagInput').value)">
+            Scan
           </md-filled-tonal-button>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- ROLE 3: PARTNER LAUNDROMAT INTAKE VIEW -->
-    <section id="hubView" class="hidden m3-card shadow-sm space-y-4">
-      <div class="border-b border-slate-300 pb-3">
-        <h2 class="text-lg font-bold text-slate-900">Partner Laundromat Intake</h2>
-        <p class="text-xs text-slate-500">Verify weight scale and custom care directives</p>
-      </div>
-
-      <div class="m3-card-high space-y-3">
-        <div class="flex justify-between items-start">
+      <!-- ROLE VIEW 1: CUSTOMER ORDER PANEL -->
+      <section id="seniorView" class="m3-card shadow-sm space-y-4">
+        <div class="border-b border-slate-300 pb-3 flex justify-between items-center">
           <div>
-            <p class="text-xs text-slate-500 font-bold uppercase">Inbound Bag ID</p>
-            <p id="hubBagCode" class="text-2xl font-bold text-[#006399] font-mono">---</p>
+            <h2 class="text-xl font-bold text-slate-900">Senior Home Laundry</h2>
+            <p class="text-xs text-slate-500">Flat $50 Laundry Care Bag</p>
           </div>
-          <div id="hubWashPrefs" class="bg-purple-100 text-purple-900 font-bold text-xs px-2.5 py-1 rounded-lg">
-            Standard Wash
+          <span class="bg-[#cce5ff] text-[#001d32] text-xs font-black px-3 py-1.5 rounded-full">$50 Flat Rate</span>
+        </div>
+
+        <div class="m3-card-high space-y-3">
+          <p class="text-xs text-slate-500 font-bold uppercase tracking-wider">Scanned Bag</p>
+          <p id="seniorBagCode" class="text-3xl font-black text-[#006399] font-mono">SUD-00101</p>
+          
+          <div id="seniorUserInfo" class="pt-2 border-t border-slate-300 text-sm space-y-1">
+            <p id="seniorName" class="font-bold text-slate-900 text-lg">Eleanor Vance</p>
+            <p id="seniorAddress" class="text-xs text-slate-600">742 Evergreen Terr, Apt 3B • Oakridge Senior Living</p>
+            <p id="seniorPrefs" class="text-xs font-semibold text-purple-800 pt-1">✨ Prefs: Hypoallergenic Detergent, Low Heat</p>
           </div>
         </div>
 
-        <!-- Scale Input & Overage Calculator -->
-        <div class="bg-white p-3.5 rounded-xl border border-slate-200 space-y-2">
-          <label class="text-xs font-bold text-slate-700 block">Intake Scale Weight (lbs):</label>
-          <div class="flex gap-2 items-center">
-            <div class="flex-1">
-              <md-outlined-text-field id="scaleWeight" type="number" value="32.5" oninput="calculateOverage()" class="w-full"></md-outlined-text-field>
+        <div class="pt-2">
+          <md-filled-button onclick="requestPickup()" class="w-full h-16 text-lg">
+            <span class="material-symbols-outlined" slot="icon">local_shipping</span>
+            Confirm & Request $50 Pickup
+          </md-filled-button>
+        </div>
+      </section>
+
+      <!-- ROLE VIEW 2: DRIVER DISPATCH PANEL -->
+      <section id="driverView" class="hidden m3-card shadow-sm space-y-4">
+        <div class="border-b border-slate-300 pb-3">
+          <h2 class="text-lg font-bold text-slate-900">Driver Route Management</h2>
+          <p class="text-xs text-slate-500">Perform pickup or doorstep drop-off</p>
+        </div>
+
+        <div class="m3-card-high space-y-3">
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="text-xs text-slate-500 font-bold uppercase">Scanned Pickup Tag</p>
+              <p id="driverBagCode" class="text-2xl font-bold text-[#006399] font-mono">---</p>
             </div>
-            <md-outlined-button onclick="simulateScaleRead()">
-              <span class="material-symbols-outlined" slot="icon">scale</span> Auto-Scale
-            </md-outlined-button>
+            <span id="driverBagStatus" class="bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded-full font-bold">Awaiting Scan</span>
           </div>
 
-          <div id="overageWarning" class="text-xs bg-slate-100 p-2.5 rounded-lg border border-slate-200 flex justify-between items-center mt-2">
-            <span class="text-slate-600">Flat Limit: 40 lbs</span>
-            <span id="overageFeeText" class="font-bold text-emerald-700">Standard ($0.00 overage)</span>
+          <div class="bg-white p-3.5 rounded-xl border border-slate-200 text-xs space-y-1">
+            <p class="font-bold text-slate-800">Senior Address & Access Notes:</p>
+            <p id="driverAddressText" class="text-slate-600">Scan a bag code to load route instructions...</p>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 pt-2">
+            <md-filled-button onclick="updateBagStatus('IN_TRANSIT')">
+              Mark Picked Up
+            </md-filled-button>
+            <md-filled-tonal-button onclick="updateBagStatus('DELIVERED')">
+              Mark Delivered
+            </md-filled-tonal-button>
           </div>
         </div>
+      </section>
 
-        <md-filled-button onclick="updateBagStatus('PROCESSING_COMPLETE')" class="w-full">
-          Complete Wash & Mark Ready
-        </md-filled-button>
-      </div>
-    </section>
+      <!-- ROLE VIEW 3: LAUNDROMAT INTAKE PANEL -->
+      <section id="hubView" class="hidden m3-card shadow-sm space-y-4">
+        <div class="border-b border-slate-300 pb-3">
+          <h2 class="text-lg font-bold text-slate-900">Laundromat Processing Intake</h2>
+          <p class="text-xs text-slate-500">Verify weight scale and custom care directives</p>
+        </div>
 
-    <!-- Activity Log -->
-    <section class="m3-card shadow-sm">
-      <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Live System Activity</h3>
-      <div id="activityLog" class="bg-slate-900 p-3 rounded-xl text-xs font-mono text-emerald-400 h-28 overflow-y-auto space-y-1">
-        <p>[System] Material 3 UI loaded for sudflow-plus repo.</p>
-      </div>
-    </section>
+        <div class="m3-card-high space-y-3">
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="text-xs text-slate-500 font-bold uppercase">Inbound Bag ID</p>
+              <p id="hubBagCode" class="text-2xl font-bold text-[#006399] font-mono">---</p>
+            </div>
+            <div id="hubWashPrefs" class="bg-purple-100 text-purple-900 font-bold text-xs px-2.5 py-1 rounded-lg">
+              Standard Wash
+            </div>
+          </div>
+
+          <!-- Scale Input & Overage Calculator -->
+          <div class="bg-white p-3.5 rounded-xl border border-slate-200 space-y-2">
+            <label class="text-xs font-bold text-slate-700 block">Intake Scale Weight (lbs):</label>
+            <div class="flex gap-2 items-center">
+              <div class="flex-1">
+                <md-outlined-text-field id="scaleWeight" type="number" value="32.5" oninput="calculateOverage()" class="w-full"></md-outlined-text-field>
+              </div>
+              <md-outlined-button onclick="simulateScaleRead()">
+                <span class="material-symbols-outlined" slot="icon">scale</span> Read Scale
+              </md-outlined-button>
+            </div>
+
+            <div id="overageWarning" class="text-xs bg-slate-100 p-2.5 rounded-lg border border-slate-200 flex justify-between items-center mt-2">
+              <span class="text-slate-600">Flat Limit: 40 lbs</span>
+              <span id="overageFeeText" class="font-bold text-emerald-700">Standard ($0.00 overage)</span>
+            </div>
+          </div>
+
+          <md-filled-button onclick="updateBagStatus('PROCESSING_COMPLETE')" class="w-full">
+            Complete Wash & Mark Ready
+          </md-filled-button>
+        </div>
+      </section>
+
+      <!-- System Activity Log -->
+      <section class="m3-card shadow-sm">
+        <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Live System Activity Log</h3>
+        <div id="activityLog" class="bg-slate-900 p-3 rounded-xl text-xs font-mono text-emerald-400 h-28 overflow-y-auto space-y-1">
+          <p>[System] App active in sudflow-plus repo.</p>
+        </div>
+      </section>
+    </div>
   </main>
 
-  <!-- M3 Settings Dialog / Modal -->
+  <!-- Settings Dialog Modal -->
   <div id="settingsModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-xs z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl border border-slate-200">
       <h3 class="text-xl font-bold text-slate-900">Settings & Google API</h3>
-      <p class="text-xs text-slate-600">Paste your deployed Google Apps Script Web App URL to link this Material 3 interface directly with your Google Sheet backend.</p>
+      <p class="text-xs text-slate-600">Paste your deployed Google Apps Script Web App URL to link this app directly to your Google Sheet database.</p>
 
       <md-outlined-text-field id="scriptUrlInput" label="Google Apps Script URL" placeholder="https://script.google.com/macros/s/.../exec" class="w-full"></md-outlined-text-field>
 
@@ -274,32 +379,25 @@
     </div>
   </div>
 
-  <!-- Application Logic -->
+  <!-- Application JS Logic -->
   <script>
     let state = {
-      role: 'senior',
+      role: null,
       activeBagCode: 'SUD-00101',
       activeUser: null,
+      registeredDriver: null,
+      registeredHub: null,
       scriptUrl: localStorage.getItem('sudflow_script_url') || '',
       html5QrcodeScanner: null
     };
 
     window.addEventListener('DOMContentLoaded', () => {
-      const urlParams = new URLSearchParams(window.location.search);
-      const bagParam = urlParams.get('bag');
-      if (bagParam) {
-        state.activeBagCode = bagParam;
-        logActivity(`Bag query param detected: ${bagParam}`);
-      }
-
       if (state.scriptUrl) {
         document.getElementById('scriptUrlInput').value = state.scriptUrl;
         document.getElementById('apiNotice').classList.add('hidden');
       } else {
         document.getElementById('apiNotice').classList.remove('hidden');
       }
-
-      handleCodeScanned(state.activeBagCode);
     });
 
     function logActivity(msg) {
@@ -310,44 +408,171 @@
       log.prepend(entry);
     }
 
-    function switchRole(newRole) {
-      state.role = newRole;
-      document.getElementById('seniorView').classList.toggle('hidden', newRole !== 'senior');
-      document.getElementById('driverView').classList.toggle('hidden', newRole !== 'driver');
-      document.getElementById('hubView').classList.toggle('hidden', newRole !== 'hub');
-      logActivity(`Switched mode to: ${newRole}`);
+    function showLandingPage() {
+      document.getElementById('landingPage').classList.remove('hidden');
+      document.getElementById('driverRegisterPage').classList.add('hidden');
+      document.getElementById('hubRegisterPage').classList.add('hidden');
+      document.getElementById('workspacePage').classList.add('hidden');
+      document.getElementById('activeRoleBadge').classList.add('hidden');
+      stopCameraScanner();
     }
 
+    function selectRole(role) {
+      state.role = role;
+      const badge = document.getElementById('activeRoleBadge');
+      badge.classList.remove('hidden');
+
+      if (role === 'senior') {
+        badge.textContent = "Role: Customer";
+        document.getElementById('landingPage').classList.add('hidden');
+        document.getElementById('workspacePage').classList.remove('hidden');
+        document.getElementById('seniorView').classList.remove('hidden');
+        document.getElementById('driverView').classList.add('hidden');
+        document.getElementById('hubView').classList.add('hidden');
+        handleCodeScanned(state.activeBagCode);
+      } 
+      else if (role === 'driver') {
+        badge.textContent = "Role: Courier Driver";
+        if (!state.registeredDriver) {
+          document.getElementById('landingPage').classList.add('hidden');
+          document.getElementById('driverRegisterPage').classList.remove('hidden');
+        } else {
+          openWorkspaceForRole('driver');
+        }
+      } 
+      else if (role === 'hub') {
+        badge.textContent = "Role: Partner Laundromat";
+        if (!state.registeredHub) {
+          document.getElementById('landingPage').classList.add('hidden');
+          document.getElementById('hubRegisterPage').classList.remove('hidden');
+        } else {
+          openWorkspaceForRole('hub');
+        }
+      }
+    }
+
+    function openWorkspaceForRole(role) {
+      document.getElementById('landingPage').classList.add('hidden');
+      document.getElementById('driverRegisterPage').classList.add('hidden');
+      document.getElementById('hubRegisterPage').classList.add('hidden');
+      document.getElementById('workspacePage').classList.remove('hidden');
+
+      document.getElementById('seniorView').classList.toggle('hidden', role !== 'senior');
+      document.getElementById('driverView').classList.toggle('hidden', role !== 'driver');
+      document.getElementById('hubView').classList.toggle('hidden', role !== 'hub');
+
+      if (role === 'driver' && state.registeredDriver) {
+        document.getElementById('activeUserGreeting').textContent = `Driver: ${state.registeredDriver.name}`;
+      } else if (role === 'hub' && state.registeredHub) {
+        document.getElementById('activeUserGreeting').textContent = `Hub: ${state.registeredHub.facility_name}`;
+      }
+      handleCodeScanned(state.activeBagCode);
+    }
+
+    // DRIVER REGISTRATION FORM SUBMISSION
+    function submitDriverRegistration(e) {
+      e.preventDefault();
+      const payload = {
+        action: 'REGISTER_DRIVER',
+        full_name: document.getElementById('drvName').value,
+        email: document.getElementById('drvEmail').value,
+        phone: document.getElementById('drvPhone').value,
+        vehicle_info: document.getElementById('drvVehicle').value
+      };
+
+      logActivity(`Registering driver ${payload.full_name}...`);
+
+      if (state.scriptUrl) {
+        fetch(state.scriptUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        })
+        .then(res => res.json())
+        .then(data => {
+          logActivity(`Driver registered with ID: ${data.driver_id}`);
+          state.registeredDriver = { id: data.driver_id, name: payload.full_name };
+          alert(`Registration Complete! Assigned Driver ID: ${data.driver_id}`);
+          openWorkspaceForRole('driver');
+        });
+      } else {
+        logActivity(`[Demo] Driver ${payload.full_name} saved locally.`);
+        state.registeredDriver = { id: 'DRV-999', name: payload.full_name };
+        alert(`[Demo Mode] Driver Registered! ID: DRV-999`);
+        openWorkspaceForRole('driver');
+      }
+    }
+
+    // LAUNDROMAT REGISTRATION FORM SUBMISSION
+    function submitHubRegistration(e) {
+      e.preventDefault();
+      const payload = {
+        action: 'REGISTER_LAUNDROMAT',
+        facility_name: document.getElementById('hubFacility').value,
+        contact_name: document.getElementById('hubContact').value,
+        email: document.getElementById('hubEmail').value,
+        phone: document.getElementById('hubPhone').value,
+        address: document.getElementById('hubAddress').value,
+        capacity_lbs: document.getElementById('hubCapacity').value
+      };
+
+      logActivity(`Registering laundromat ${payload.facility_name}...`);
+
+      if (state.scriptUrl) {
+        fetch(state.scriptUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        })
+        .then(res => res.json())
+        .then(data => {
+          logActivity(`Hub registered with ID: ${data.hub_id}`);
+          state.registeredHub = { id: data.hub_id, facility_name: payload.facility_name };
+          alert(`Facility Registered! Assigned Hub ID: ${data.hub_id}`);
+          openWorkspaceForRole('hub');
+        });
+      } else {
+        logActivity(`[Demo] Facility ${payload.facility_name} saved locally.`);
+        state.registeredHub = { id: 'HUB-888', facility_name: payload.facility_name };
+        alert(`[Demo Mode] Facility Registered! ID: HUB-888`);
+        openWorkspaceForRole('hub');
+      }
+    }
+
+    // REAL CAMERA SCANNER ENGINE
     function startCameraScanner() {
       document.getElementById('scannerPlaceholder').classList.add('hidden');
-      document.getElementById('scannerStatus').textContent = "Camera Active";
+      document.getElementById('scannerStatus').textContent = "Camera Live";
       document.getElementById('scannerStatus').className = "text-xs bg-emerald-100 text-emerald-800 font-bold px-3 py-1 rounded-full";
 
       state.html5QrcodeScanner = new Html5QrcodeScanner(
         "reader", 
-        { fps: 10, qrbox: { width: 200, height: 200 } },
+        { fps: 10, qrbox: { width: 220, height: 220 } },
         false
       );
 
       state.html5QrcodeScanner.render(onScanSuccess, () => {});
-      logActivity("Activated camera scanner.");
+      logActivity("Activated browser live camera scanner.");
+    }
+
+    function stopCameraScanner() {
+      if (state.html5QrcodeScanner) {
+        try { state.html5QrcodeScanner.clear(); } catch(e){}
+        document.getElementById('scannerPlaceholder').classList.remove('hidden');
+        document.getElementById('scannerStatus').textContent = "Camera Idle";
+        document.getElementById('scannerStatus').className = "text-xs bg-slate-200 text-slate-700 font-semibold px-3 py-1 rounded-full";
+      }
     }
 
     function onScanSuccess(decodedText) {
-      logActivity(`Code scanned: ${decodedText}`);
+      logActivity(`Camera decoded barcode: ${decodedText}`);
       let bagCode = decodedText;
       if (decodedText.includes('bag=')) {
         const url = new URL(decodedText);
         bagCode = url.searchParams.get('bag') || decodedText;
       }
       handleCodeScanned(bagCode);
-      
-      if (state.html5QrcodeScanner) {
-        state.html5QrcodeScanner.clear();
-        document.getElementById('scannerPlaceholder').classList.remove('hidden');
-        document.getElementById('scannerStatus').textContent = "Camera Idle";
-        document.getElementById('scannerStatus').className = "text-xs bg-slate-200 text-slate-700 font-semibold px-3 py-1 rounded-full";
-      }
+      stopCameraScanner();
     }
 
     function handleCodeScanned(bagCode) {
@@ -358,7 +583,7 @@
       document.getElementById('driverBagCode').textContent = bagCode;
       document.getElementById('hubBagCode').textContent = bagCode;
 
-      logActivity(`Querying profile for Bag: ${bagCode}`);
+      logActivity(`Querying profile for Bag Code: ${bagCode}`);
 
       if (state.scriptUrl) {
         fetch(`${state.scriptUrl}?bag=${encodeURIComponent(bagCode)}`)
@@ -367,7 +592,7 @@
             if (data.status === 'success') {
               populateUserData(data.user, data.bag);
             } else {
-              logActivity(`Bag ${bagCode} unassigned in database.`);
+              logActivity(`Bag ${bagCode} not paired in database.`);
             }
           })
           .catch(err => logActivity(`API Error: ${err.message}`));
@@ -388,7 +613,7 @@
       document.getElementById('seniorAddress').textContent = `${user.address} • ${user.facility || 'Direct Household'}`;
       document.getElementById('seniorPrefs').textContent = `✨ Prefs: ${user.preferences || 'Standard Wash'}`;
       
-      document.getElementById('driverAddressText').textContent = `${user.full_name} - ${user.address} (${user.facility || 'Home'}). Note: Senior resident, please knock softly.`;
+      document.getElementById('driverAddressText').textContent = `${user.full_name} - ${user.address} (${user.facility || 'Home Pickup'}). Senior Note: Soft knock required.`;
       document.getElementById('driverBagStatus').textContent = bag.status || "IDLE";
       
       document.getElementById('hubWashPrefs').textContent = user.preferences || 'Standard Wash';
@@ -441,13 +666,31 @@
       const randomWeight = (28 + Math.random() * 20).toFixed(1);
       document.getElementById('scaleWeight').value = randomWeight;
       calculateOverage();
-      logActivity(`Bluetooth scale read: ${randomWeight} lbs`);
+      logActivity(`Scale weight read: ${randomWeight} lbs`);
     }
 
     function updateBagStatus(newStatus) {
-      logActivity(`Bag ${state.activeBagCode} status changed to: ${newStatus}`);
-      document.getElementById('driverBagStatus').textContent = newStatus;
-      alert(`Status updated to ${newStatus}`);
+      logActivity(`Updating ${state.activeBagCode} status to: ${newStatus}`);
+      
+      if (state.scriptUrl) {
+        fetch(state.scriptUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'UPDATE_STATUS',
+            bag_code: state.activeBagCode,
+            new_status: newStatus
+          })
+        })
+        .then(res => res.json())
+        .then(() => {
+          document.getElementById('driverBagStatus').textContent = newStatus;
+          alert(`Status in Google Sheet updated to ${newStatus}`);
+        });
+      } else {
+        document.getElementById('driverBagStatus').textContent = newStatus;
+        alert(`[Demo Mode] Status updated to ${newStatus}`);
+      }
     }
 
     function toggleSettingsModal() {
@@ -460,7 +703,7 @@
       localStorage.setItem('sudflow_script_url', url);
       document.getElementById('apiNotice').classList.toggle('hidden', !!url);
       toggleSettingsModal();
-      logActivity("Google Apps Script URL saved.");
+      logActivity("Google Apps Script API URL saved.");
     }
   </script>
 </body>
