@@ -1,7 +1,306 @@
-<!-- External Config Load -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sudflow Plus - Smart Laundry Operating System</title>
+
+  <!-- Google Material Symbols & Fonts -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Real-time Camera Vision QR & Barcode Scanner Engine -->
+  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+
+  <!-- Google Material 3 Web Components -->
+  <script type="importmap">
+    {
+      "imports": {
+        "@material/web/": "https://esm.run/@material/web/"
+      }
+    }
+  </script>
+  <script type="module">
+    import '@material/web/all.js';
+  </script>
+
+  <style>
+    :root {
+      --md-sys-color-primary: #006399;
+      --md-sys-color-surface: #f8f9ff;
+      --md-sys-color-surface-container: #ededf4;
+      --md-sys-color-surface-container-high: #e2e2e9;
+      --md-sys-color-on-surface: #191c20;
+      font-family: 'Roboto', sans-serif;
+    }
+
+    body {
+      background-color: var(--md-sys-color-surface);
+      color: var(--md-sys-color-on-surface);
+    }
+
+    .m3-card {
+      background-color: var(--md-sys-color-surface-container);
+      border-radius: 28px;
+      padding: 24px;
+    }
+
+    .m3-card-high {
+      background-color: var(--md-sys-color-surface-container-high);
+      border-radius: 20px;
+      padding: 20px;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- M3 Navigation Header -->
+  <header class="bg-[#ededf4] border-b border-slate-300 px-4 py-3 flex justify-between items-center sticky top-0 z-50 shadow-sm">
+    <div class="flex items-center gap-3 cursor-pointer" onclick="showLandingPage()">
+      <span class="material-symbols-outlined text-[#006399] text-3xl">local_laundry_service</span>
+      <div>
+        <h1 class="font-black text-xl text-slate-900 tracking-tight">Sudflow <span class="text-[#006399]">+</span></h1>
+        <p class="text-xs text-slate-500 font-medium">Smart Laundry OS</p>
+      </div>
+    </div>
+    
+    <div class="flex items-center gap-2">
+      <md-filled-tonal-button onclick="showScannerModal()">
+        <span class="material-symbols-outlined" slot="icon">qr_code_scanner</span>
+        Scan Bag
+      </md-filled-tonal-button>
+      
+      <md-icon-button onclick="toggleSettingsModal()">
+        <span class="material-symbols-outlined">settings</span>
+      </md-icon-button>
+    </div>
+  </header>
+
+  <!-- Main Content Workspace -->
+  <main class="flex-1 max-w-3xl w-full mx-auto p-4 flex flex-col gap-6">
+
+    <!-- Config Alert Banner -->
+    <div id="apiNotice" class="hidden bg-amber-100 border border-amber-300 text-amber-900 px-4 py-3 rounded-2xl text-xs flex justify-between items-center">
+      <span class="flex items-center gap-2">
+        <span class="material-symbols-outlined text-amber-700">warning</span>
+        Demo Mode: Google Apps Script & Square API URL not configured.
+      </span>
+      <md-text-button onclick="toggleSettingsModal()">Configure</md-text-button>
+    </div>
+
+    <!-- SECTION 1: PUBLIC NATIONWIDE LANDING PAGE -->
+    <section id="landingPage" class="space-y-6">
+      
+      <!-- Hero Banner -->
+      <div class="m3-card bg-gradient-to-br from-[#006399] to-blue-900 text-white space-y-4 text-center py-10 shadow-lg">
+        <span class="bg-white/20 text-white text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wider inline-block">
+          Asset-Light Laundry Platform
+        </span>
+        <h2 class="text-3xl sm:text-4xl font-black leading-tight">
+          $50 Flat-Rate Wash & Fold Care for Seniors
+        </h2>
+        <p class="text-sm sm:text-base text-blue-100 max-w-lg mx-auto">
+          No apps to download. No monthly contracts. One scannable Smart Bag powers doorstep pickups, local laundromat washing, and DoorDash couriers.
+        </p>
+
+        <div class="pt-2 flex flex-wrap justify-center gap-3">
+          <!-- External Link to Square Online Store -->
+          <md-filled-button onclick="window.open('https://square.link/u/YOUR_SQUARE_BAG_LINK', '_blank')">
+            <span class="material-symbols-outlined" slot="icon">shopping_bag</span>
+            Order Smart Bag ($10)
+          </md-filled-button>
+          
+          <md-outlined-button onclick="showScannerModal()" class="bg-white/10 text-white border-white/30">
+            <span class="material-symbols-outlined" slot="icon">qr_code_scanner</span>
+            I Have a Bag (Scan Now)
+          </md-outlined-button>
+        </div>
+      </div>
+
+      <!-- How It Works Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="m3-card text-center space-y-2">
+          <div class="w-12 h-12 bg-blue-100 text-[#006399] rounded-2xl flex items-center justify-center mx-auto">
+            <span class="material-symbols-outlined text-2xl">qr_code</span>
+          </div>
+          <h3 class="font-bold text-slate-900">1. Scan Smart Bag</h3>
+          <p class="text-xs text-slate-600">Scan the QR code on the bag with any phone camera. Auto-fills saved senior preferences.</p>
+        </div>
+
+        <div class="m3-card text-center space-y-2">
+          <div class="w-12 h-12 bg-emerald-100 text-emerald-900 rounded-2xl flex items-center justify-center mx-auto">
+            <span class="material-symbols-outlined text-2xl">local_shipping</span>
+          </div>
+          <h3 class="font-bold text-slate-900">2. DoorDash Pickup</h3>
+          <p class="text-xs text-slate-600">Square On-Demand Delivery auto-dispatches couriers directly to the senior’s doorstep.</p>
+        </div>
+
+        <div class="m3-card text-center space-y-2">
+          <div class="w-12 h-12 bg-purple-100 text-purple-900 rounded-2xl flex items-center justify-center mx-auto">
+            <span class="material-symbols-outlined text-2xl">sanitizer</span>
+          </div>
+          <h3 class="font-bold text-slate-900">3. Local Wash & Return</h3>
+          <p class="text-xs text-slate-600">Partner laundromats process off-peak and couriers return clean, folded laundry within 24 hrs.</p>
+        </div>
+      </div>
+
+      <!-- Partner & Driver Portal Entry -->
+      <div class="m3-card-high space-y-3">
+        <h3 class="font-bold text-slate-900 text-sm uppercase tracking-wider text-center">Network Portal Selection</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          <md-filled-tonal-button onclick="selectRole('senior')">
+            👵 Senior Care Portal
+          </md-filled-tonal-button>
+          <md-filled-tonal-button onclick="selectRole('driver')">
+            🚗 Courier Driver
+          </md-filled-tonal-button>
+          <md-filled-tonal-button onclick="selectRole('hub')">
+            🧺 Laundromat Partner
+          </md-filled-tonal-button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 2: REGISTRATION FORMS (DRIVERS & LAUNDROMATS) -->
+    <section id="driverRegisterPage" class="hidden m3-card space-y-4">
+      <div class="flex items-center gap-2 border-b border-slate-300 pb-3">
+        <md-icon-button onclick="showLandingPage()"><span class="material-symbols-outlined">arrow_back</span></md-icon-button>
+        <h2 class="text-lg font-bold text-slate-900">Courier Driver Onboarding</h2>
+      </div>
+      <form id="driverForm" onsubmit="submitDriverRegistration(event)" class="space-y-3">
+        <md-outlined-text-field id="drvName" label="Full Name" required class="w-full"></md-outlined-text-field>
+        <md-outlined-text-field id="drvEmail" label="Email Address" type="email" required class="w-full"></md-outlined-text-field>
+        <md-outlined-text-field id="drvPhone" label="Phone Number" type="tel" required class="w-full"></md-outlined-text-field>
+        <md-outlined-text-field id="drvVehicle" label="Vehicle Information" required class="w-full"></md-outlined-text-field>
+        <md-filled-button type="submit" class="w-full">Register Driver</md-filled-button>
+      </form>
+    </section>
+
+    <section id="hubRegisterPage" class="hidden m3-card space-y-4">
+      <div class="flex items-center gap-2 border-b border-slate-300 pb-3">
+        <md-icon-button onclick="showLandingPage()"><span class="material-symbols-outlined">arrow_back</span></md-icon-button>
+        <h2 class="text-lg font-bold text-slate-900">Laundromat Facility Onboarding</h2>
+      </div>
+      <form id="hubForm" onsubmit="submitHubRegistration(event)" class="space-y-3">
+        <md-outlined-text-field id="hubFacility" label="Laundromat / Business Name" required class="w-full"></md-outlined-text-field>
+        <md-outlined-text-field id="hubContact" label="Contact Name" required class="w-full"></md-outlined-text-field>
+        <md-outlined-text-field id="hubEmail" label="Business Email" type="email" required class="w-full"></md-outlined-text-field>
+        <md-outlined-text-field id="hubAddress" label="Address" required class="w-full"></md-outlined-text-field>
+        <md-filled-button type="submit" class="w-full">Register Facility Partner</md-filled-button>
+      </form>
+    </section>
+
+    <!-- SECTION 3: OPERATIONAL WORKSPACE (Active Bag Resolution) -->
+    <div id="workspacePage" class="hidden space-y-5">
+      <div class="flex justify-between items-center">
+        <md-outlined-button onclick="showLandingPage()">
+          <span class="material-symbols-outlined" slot="icon">arrow_back</span> Main Menu
+        </md-outlined-button>
+        <span id="activeRoleBadge" class="text-xs font-bold bg-[#cce5ff] text-[#001d32] px-3 py-1.5 rounded-full"></span>
+      </div>
+
+      <!-- SENIOR / CUSTOMER ORDER VIEW -->
+      <section id="seniorView" class="m3-card space-y-4">
+        <div class="border-b border-slate-300 pb-3 flex justify-between items-center">
+          <div>
+            <h2 class="text-xl font-bold text-slate-900">Senior Home Laundry Care</h2>
+            <p class="text-xs text-slate-500">Flat $50 Bag Pickup & Delivery</p>
+          </div>
+          <span class="bg-[#cce5ff] text-[#001d32] text-xs font-black px-3 py-1.5 rounded-full">$50 Flat Rate</span>
+        </div>
+
+        <div class="m3-card-high space-y-3">
+          <p class="text-xs text-slate-500 font-bold uppercase">Scanned Bag ID</p>
+          <p id="seniorBagCode" class="text-3xl font-black text-[#006399] font-mono">SUD-00101</p>
+          
+          <div id="seniorUserInfo" class="pt-2 border-t border-slate-300 text-sm space-y-1">
+            <p id="seniorName" class="font-bold text-slate-900 text-lg">Eleanor Vance</p>
+            <p id="seniorAddress" class="text-xs text-slate-600">742 Evergreen Terr, Apt 3B • Oakridge Senior Living</p>
+            <p id="seniorPrefs" class="text-xs font-semibold text-purple-800 pt-1">✨ Prefs: Hypoallergenic Detergent, Low Heat</p>
+          </div>
+        </div>
+
+        <md-filled-button onclick="requestPickup()" class="w-full h-16 text-lg">
+          <span class="material-symbols-outlined" slot="icon">local_shipping</span>
+          Pay $50 & Schedule DoorDash Pickup
+        </md-filled-button>
+      </section>
+
+      <!-- DRIVER DISPATCH VIEW -->
+      <section id="driverView" class="hidden m3-card space-y-4">
+        <h2 class="text-lg font-bold text-slate-900">Driver Dispatch View</h2>
+        <div class="m3-card-high space-y-2">
+          <p class="text-xs text-slate-500 font-bold">Active Bag Tag: <span id="driverBagCode" class="font-mono text-blue-800">---</span></p>
+          <p id="driverAddressText" class="text-xs text-slate-700">Scan bag to load doorstep route notes...</p>
+          <div class="grid grid-cols-2 gap-2 pt-2">
+            <md-filled-button onclick="updateBagStatus('IN_TRANSIT')">Mark Picked Up</md-filled-button>
+            <md-filled-tonal-button onclick="updateBagStatus('DELIVERED')">Mark Delivered</md-filled-tonal-button>
+          </div>
+        </div>
+      </section>
+
+      <!-- LAUNDROMAT INTAKE VIEW -->
+      <section id="hubView" class="hidden m3-card space-y-4">
+        <h2 class="text-lg font-bold text-slate-900">Laundromat Intake & Scale</h2>
+        <div class="m3-card-high space-y-3">
+          <p class="text-xs text-slate-500 font-bold">Bag Code: <span id="hubBagCode" class="font-mono text-blue-800">---</span></p>
+          <md-outlined-text-field id="scaleWeight" type="number" value="32.5" label="Scale Weight (lbs)" oninput="calculateOverage()" class="w-full"></md-outlined-text-field>
+          <div id="overageWarning" class="text-xs bg-slate-100 p-2.5 rounded-lg flex justify-between">
+            <span>Flat Limit: 40 lbs</span>
+            <span id="overageFeeText" class="font-bold text-emerald-700">Standard ($0.00)</span>
+          </div>
+          <md-filled-button onclick="updateBagStatus('PROCESSING_COMPLETE')" class="w-full">Complete Wash</md-filled-button>
+        </div>
+      </section>
+
+      <!-- System Activity Log -->
+      <section class="m3-card shadow-sm">
+        <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Live System Activity Log</h3>
+        <div id="activityLog" class="bg-slate-900 p-3 rounded-xl text-xs font-mono text-emerald-400 h-24 overflow-y-auto space-y-1">
+          <p>[System] App active connected to Square POS.</p>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- CAMERA SCANNER MODAL -->
+  <div id="scannerModal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+      <div class="flex justify-between items-center">
+        <h3 class="font-bold text-slate-900">Scan Smart Bag Tag</h3>
+        <md-icon-button onclick="closeScannerModal()"><span class="material-symbols-outlined">close</span></md-icon-button>
+      </div>
+
+      <div class="bg-slate-900 rounded-2xl overflow-hidden min-h-[220px] flex items-center justify-center">
+        <div id="reader" class="w-full"></div>
+      </div>
+
+      <div class="flex gap-2">
+        <md-outlined-text-field id="manualBagInput" label="Manual Bag ID" value="SUD-00101" class="flex-1"></md-outlined-text-field>
+        <md-filled-button onclick="handleManualScan()">Scan</md-filled-button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SETTINGS MODAL -->
+  <div id="settingsModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+      <h3 class="text-xl font-bold text-slate-900">API Settings</h3>
+      <md-outlined-text-field id="scriptUrlInput" label="Google Apps Script URL" class="w-full"></md-outlined-text-field>
+      <div class="flex justify-end gap-2 pt-2">
+        <md-text-button onclick="toggleSettingsModal()">Cancel</md-text-button>
+        <md-filled-button onclick="saveSettings()">Save</md-filled-button>
+      </div>
+    </div>
+  </div>
+
+  <!-- External Config Load -->
   <script src="config.js"></script>
 
-  <!-- Application JS Logic with Direct Camera Vision Engine -->
+  <!-- Application JS Logic with Direct Hardware Camera Vision Engine -->
   <script>
     let state = {
       role: 'senior',
@@ -77,13 +376,12 @@
       };
 
       try {
-        logActivity("Requesting browser camera permission...");
-        // Attempts rear camera on mobile (environment) or primary camera on desktop
+        logActivity("Requesting camera permission...");
         await state.html5QrCodeEngine.start(
           { facingMode: "environment" },
           cameraConfig,
           (decodedText) => {
-            logActivity(`Camera successfully decoded tag: ${decodedText}`);
+            logActivity(`Camera decoded tag: ${decodedText}`);
             let bagCode = decodedText;
             if (decodedText.includes('bag=')) {
               try {
@@ -96,13 +394,13 @@
             handleCodeScanned(bagCode);
           },
           (errorMessage) => {
-            // Continuous frame parse failures are normal while aligning camera
+            // Frame parse skips are normal
           }
         );
         logActivity("Camera hardware stream online.");
       } catch (err) {
-        logActivity(`Camera hardware error: ${err}`);
-        alert("Camera Access Error: Make sure your site is running over HTTPS (GitHub Pages) and camera permissions are allowed in your browser settings.");
+        logActivity(`Camera error: ${err}`);
+        alert("Camera Access Error: Please ensure site is served via HTTPS (GitHub Pages) and browser permissions are allowed.");
       }
     }
 
@@ -206,3 +504,5 @@
       toggleSettingsModal();
     }
   </script>
+</body>
+</html>
