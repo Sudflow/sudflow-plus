@@ -379,6 +379,9 @@
     </div>
   </div>
 
+  <!-- Load External Configuration First -->
+  <script src="config.js"></script>
+
   <!-- Application JS Logic -->
   <script>
     let state = {
@@ -387,7 +390,8 @@
       activeUser: null,
       registeredDriver: null,
       registeredHub: null,
-      scriptUrl: localStorage.getItem('sudflow_script_url') || '',
+      // Priority: 1. localStorage over-ride, 2. config.js CONFIG.SCRIPT_URL, 3. Empty string
+      scriptUrl: localStorage.getItem('sudflow_script_url') || (typeof CONFIG !== 'undefined' ? CONFIG.SCRIPT_URL : ''),
       html5QrcodeScanner: null
     };
 
